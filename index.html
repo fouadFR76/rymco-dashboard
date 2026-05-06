@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RYMCO Lebanon — Social Media Performance Dashboard</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  color: #1A1F2B;
+  background: #F5F6F8;
+  line-height: 1.45;
+  font-size: 14px;
+}
+.wrap { max-width: 1280px; margin: 0 auto; padding: 18px 22px 60px; }
+
+/* Header */
+.hdr {
+  background: linear-gradient(135deg, #1F3A6B 0%, #2A4F8F 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  box-shadow: 0 2px 14px rgba(20,30,55,0.08);
+}
+.hdr h1 { margin: 0 0 4px 0; font-size: 20px; font-weight: 600; letter-spacing: -0.2px; }
+.hdr .sub { font-size: 12.5px; opacity: 0.82; }
+.hdr .meta { text-align: right; font-size: 12.5px; opacity: 0.92; }
+.hdr .meta strong { font-weight: 600; }
+.brand-row { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.brand-pill {
+  background: rgba(255,255,255,0.16);
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* Sections */
+section { margin-top: 22px; }
+.sec-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #DCE0E8;
+}
+.sec-title h2 { margin: 0; font-size: 16px; font-weight: 600; color: #1F3A6B; letter-spacing: -0.1px; }
+.sec-title .tag { font-size: 11px; color: #6B7280; }
+
+/* Cards */
+.card {
+  background: #fff;
+  border: 1px solid #E5E7ED;
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 3px rgba(20,30,55,0.04);
+}
+.grid { display: grid; gap: 14px; }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+.g5 { grid-template-columns: repeat(5, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g2 { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 980px) {
+  .g4, .g5, .g3, .g2 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .g4, .g5, .g3, .g2 { grid-template-columns: 1fr; }
+}
+
+/* KPI tiles */
+.kpi { padding: 14px 16px; }
+.kpi .label { font-size: 11.5px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.4px; }
+.kpi .val { font-size: 28px; font-weight: 700; color: #1F3A6B; margin-top: 4px; line-height: 1.1; }
+.kpi .delta { font-size: 11.5px; color: #6B7280; margin-top: 2px; }
+.kpi.warn .val { color: #B45309; }
+.kpi.danger .val { color: #B91C1C; }
+.kpi.success .val { color: #146A3F; }
+
+/* Executive Action Queue */
+.eaq-card {
+  border-left: 3px solid #1F3A6B;
+  padding: 12px 14px;
+  background: #fff;
+  border-radius: 6px;
+  border-top: 1px solid #E5E7ED;
+  border-right: 1px solid #E5E7ED;
+  border-bottom: 1px solid #E5E7ED;
+}
+.eaq-card.p1 { border-left-color: #C8331E; }
+.eaq-card.p2 { border-left-color: #D9A726; }
+.eaq-card.p3 { border-left-color: #1F3A6B; }
+.eaq-card.p4 { border-left-color: #2D8B5F; }
+.eaq-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.eaq-head h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.eaq-prio {
+  font-size: 10.5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  color: #fff;
+}
+.p1 .eaq-prio { background: #C8331E; }
+.p2 .eaq-prio { background: #D9A726; }
+.p3 .eaq-prio { background: #1F3A6B; }
+.p4 .eaq-prio { background: #2D8B5F; }
+.eaq-body { font-size: 13px; color: #374151; }
+.eaq-body strong { color: #1A1F2B; }
+
+/* Charts */
+.chart-card { padding: 14px 14px 6px 14px; }
+.chart-card h3 { margin: 0 0 10px 0; font-size: 13.5px; font-weight: 600; color: #374151; }
+.chart-wrap { position: relative; height: 220px; }
+.chart-wrap.tall { height: 280px; }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #ECEEF3; }
+th { font-weight: 600; color: #4B5563; background: #F9FAFB; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.3px; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.alert td { background: #FEF6E7; }
+tr.danger td { background: #FDECEA; }
+.badge { font-size: 10.5px; padding: 2px 7px; border-radius: 999px; font-weight: 600; }
+.b-gmc { background: #FEE2E2; color: #B91C1C; }
+.b-nissan { background: #DBEAFE; color: #1E40AF; }
+.b-hongqi { background: #FEF3C7; color: #92400E; }
+.b-rymco { background: #E0E7FF; color: #3730A3; }
+.b-other { background: #F3F4F6; color: #4B5563; }
+
+/* Brand insights */
+.brand-card { padding: 14px 16px; border-top: 4px solid #1F3A6B; }
+.brand-card h3 { margin: 0 0 6px 0; font-size: 14px; font-weight: 600; }
+.brand-card .stats { display: flex; gap: 14px; margin: 6px 0 8px; font-size: 12px; color: #4B5563; flex-wrap: wrap; }
+.brand-card .stats span strong { color: #1A1F2B; font-size: 14px; }
+.brand-card p { margin: 6px 0 0; font-size: 12.5px; color: #374151; }
+.brand-nissan { border-top-color: #C8202C; }
+.brand-gmc { border-top-color: #D32F2F; }
+.brand-hongqi { border-top-color: #B7950B; }
+.brand-infiniti { border-top-color: #0B3D91; }
+.brand-rymco { border-top-color: #1F3A6B; }
+
+/* Notice */
+.notice {
+  background: #FEF6E7;
+  border-left: 3px solid #D9A726;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: #5C4408;
+  margin: 12px 0;
+}
+.notice.info { background: #EAF1FB; border-left-color: #1F3A6B; color: #1F3A6B; }
+.notice strong { font-weight: 600; }
+
+/* Footer */
+.foot {
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top: 1px solid #DCE0E8;
+  font-size: 11.5px;
+  color: #6B7280;
+}
+.foot ul { padding-left: 18px; margin: 6px 0; }
+
+/* Funnel */
+.funnel { display: flex; flex-direction: column; gap: 4px; padding: 6px 0; }
+.f-row { display: flex; align-items: center; gap: 10px; font-size: 12.5px; }
+.f-bar { background: linear-gradient(90deg, #1F3A6B, #2A4F8F); height: 28px; border-radius: 4px; color: #fff; padding: 0 10px; display: flex; align-items: center; font-weight: 600; min-width: 40px; }
+.f-row .lbl { width: 130px; color: #4B5563; font-size: 12px; }
+.f-row .pct { color: #6B7280; font-size: 11.5px; min-width: 70px; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div>
+    <h1>RYMCO Lebanon — Social Media Performance Dashboard</h1>
+    <div class="sub">Executive briefing · YTD 2026 lead funnel + lifetime paid benchmark</div>
+    <div class="brand-row">
+      <span class="brand-pill">Nissan</span>
+      <span class="brand-pill">Infiniti</span>
+      <span class="brand-pill">GMC</span>
+      <span class="brand-pill">HONGQI</span>
+      <span class="brand-pill">RYMCO</span>
+    </div>
+  </div>
+  <div class="meta">
+    <div><strong>Wednesday, 6 May 2026</strong></div>
+    <div>Data run: 5/6/2026 · 9:17 AM</div>
+    <div>Source: Vehicle Sales Lead CRM + Meta Ads (RYMCO Marketin)</div>
+  </div>
+</div>
+
+<!-- DATA NOTICE -->
+<div class="notice info">
+  <strong>Data scope this week:</strong> Lead funnel is current YTD 2026 from the CRM file. Paid metrics (Reach / Spend / CTR) are pulled from the Meta connector — but only the <em>RYMCO Marketin</em> master account is currently MCP-enabled (lifetime aggregate since Apr 2023). The Nissan, GMC, INFINITI and McLaren brand accounts are flagged "rolling out" by Meta and cannot be queried yet. Lifetime data is shown as benchmark; live 2026 paid figures will populate once those accounts unlock.
+</div>
+
+<!-- EXECUTIVE ACTION QUEUE -->
+<section>
+  <div class="sec-title"><h2>Executive Action Queue</h2><span class="tag">Top priorities for the week</span></div>
+  <div class="grid g2">
+
+    <div class="eaq-card p1">
+      <div class="eaq-head"><h3>2nd straight day: 0 visits, 0 test drives, 0 sales</h3><span class="eaq-prio">P1 · Critical</span></div>
+      <div class="eaq-body">Between Tue 9:24 AM and Wed 9:17 AM, the funnel grew <strong>+28 leads, +7 qualified</strong>, but <strong>0 new visits, 0 test drives, 0 sales</strong>. Visit count flat at 40 for two consecutive days. The 23 pending warm/hot leads have not moved. <strong>Action:</strong> escalate to BDC manager — close the loop on pending leads today.</div>
+    </div>
+
+    <div class="eaq-card p1">
+      <div class="eaq-head"><h3>X-Trail NMEF (043) accelerating</h3><span class="eaq-prio">P1 · Scale</span></div>
+      <div class="eaq-body">Code 043 added <strong>+9 leads YTD (+5 today)</strong> — biggest single-campaign movement of the day. Now at 83 leads, 70 qualified. Still only 2 visits / 0 test drives. <strong>Action:</strong> upweight budget and ensure BDC has dedicated coverage for this campaign before momentum fades.</div>
+    </div>
+
+    <div class="eaq-card p1">
+      <div class="eaq-head"><h3>Hongqi HS3 funnel leak</h3><span class="eaq-prio">P1 · Critical</span></div>
+      <div class="eaq-body">Hongqi (040 + 045) holds <strong>531 leads</strong> — 41.7% of total — but only <strong>8 showroom visits</strong> (1.5%). 0 movement third day running. Owns the only sale of the period. <strong>Action:</strong> audit BDC handover and qualify-to-visit script for Hongqi.</div>
+    </div>
+
+    <div class="eaq-card p2">
+      <div class="eaq-head"><h3>Walkins surging — +14 in 24h</h3><span class="eaq-prio">P2 · Channel</span></div>
+      <div class="eaq-body">Showroom Walkins added <strong>+14 leads</strong> (now 376) — 50% of the 24h growth. Walk-in volume is now <strong>29.5% of total</strong>. <strong>Action:</strong> validate walk-in qualification quality and confirm sales-floor staffing matches the surge.</div>
+    </div>
+
+    <div class="eaq-card p2">
+      <div class="eaq-head"><h3>Patrol NMEF (042) +4 leads, all stuck</h3><span class="eaq-prio">P2 · Scale</span></div>
+      <div class="eaq-body">Code 042 added 4 leads (now 44 total, 40 qualified) but still <strong>1 visit, 0 test drives</strong>. NMEF angle keeps drawing leads, lower funnel keeps stalling. <strong>Action:</strong> A/B test a finance-led creative variant.</div>
+    </div>
+
+    <div class="eaq-card p2">
+      <div class="eaq-head"><h3>GMC Terrain still flat at 3 leads</h3><span class="eaq-prio">P2 · Scale</span></div>
+      <div class="eaq-body">Code 037 GMC Terrain Naccache 2026 unchanged for the third day. <strong>Action:</strong> verify campaign live, budget pacing, and creative refresh in the GMC Lebanon ad account.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- KPI STRIP -->
+<section>
+  <div class="sec-title"><h2>Lead Funnel — KPI Snapshot</h2><span class="tag">YTD 2026 · all brands</span></div>
+  <div class="grid g5">
+    <div class="card kpi"><div class="label">Total Leads</div><div class="val">1,274</div><div class="delta">+28 vs Tue · +15 today</div></div>
+    <div class="card kpi success"><div class="label">Qualified</div><div class="val">972</div><div class="delta">76.3% qualification (+7 DoD)</div></div>
+    <div class="card kpi warn"><div class="label">Showroom Visits</div><div class="val">40</div><div class="delta">4.1% of qualified · 0 DoD</div></div>
+    <div class="card kpi warn"><div class="label">Test Drives</div><div class="val">11</div><div class="delta">1.1% of qualified · 0 DoD</div></div>
+    <div class="card kpi"><div class="label">Sales Invoiced</div><div class="val">1</div><div class="delta">Hongqi HS3 March · 0 DoD</div></div>
+  </div>
+</section>
+
+<!-- FUNNEL + BRAND SPLIT -->
+<section>
+  <div class="grid g2">
+    <div class="card chart-card">
+      <h3>Conversion Funnel (Leads → Sale)</h3>
+      <div class="funnel">
+        <div class="f-row"><div class="lbl">Total Leads</div><div class="f-bar" style="width: 100%; background: #1F3A6B;">1,274</div><div class="pct">100.0%</div></div>
+        <div class="f-row"><div class="lbl">Qualified</div><div class="f-bar" style="width: 76.3%; background: #2A4F8F;">972</div><div class="pct">76.3%</div></div>
+        <div class="f-row"><div class="lbl">Visits</div><div class="f-bar" style="width: 7.6%; background: #3D6BB5;">40</div><div class="pct">3.1%</div></div>
+        <div class="f-row"><div class="lbl">Test Drives</div><div class="f-bar" style="width: 4%; background: #5C8AD6;">11</div><div class="pct">0.9%</div></div>
+        <div class="f-row"><div class="lbl">Sales</div><div class="f-bar" style="width: 2%; background: #2D8B5F;">1</div><div class="pct">0.08%</div></div>
+      </div>
+      <div style="margin-top:14px; font-size:12px; color:#6B7280;">Major leak: <strong style="color:#B91C1C;">qualified-to-visit drop (-95.9%)</strong>. Visits and test drives flat for second straight day while leads keep flowing in — bottleneck is BDC velocity, not acquisition.</div>
+    </div>
+
+    <div class="card chart-card">
+      <h3>Lead Volume by Brand (campaign-attributed only)</h3>
+      <div class="chart-wrap"><canvas id="brandLeads"></canvas></div>
+      <div style="margin-top:8px; font-size:11.5px; color:#6B7280;">Walkins+Untagged 32.8%; Hongqi 41.7%; Nissan 25.3%; GMC 0.2%.</div>
+    </div>
+  </div>
+</section>
+
+<!-- LEADS BY CAMPAIGN BAR -->
+<section>
+  <div class="sec-title"><h2>Lead Generation by Campaign</h2><span class="tag">YTD 2026</span></div>
+  <div class="card chart-card">
+    <div class="chart-wrap tall"><canvas id="campaignBar"></canvas></div>
+  </div>
+</section>
+
+<!-- LEAD → SALES INVOICE CONVERSION -->
+<section>
+  <div class="sec-title"><h2>Lead &rarr; Sales Invoice Conversion</h2><span class="tag">No. of Sales Invoice From Leads · YTD 2026</span></div>
+
+  <div class="grid g4">
+    <div class="card kpi success"><div class="label">Sales Invoices</div><div class="val">1</div><div class="delta">closed YTD · 0 DoD</div></div>
+    <div class="card kpi"><div class="label">Lead &rarr; Sale</div><div class="val">0.08%</div><div class="delta">1 of 1,274 leads</div></div>
+    <div class="card kpi"><div class="label">Qualified &rarr; Sale</div><div class="val">0.10%</div><div class="delta">1 of 972 qualified</div></div>
+    <div class="card kpi success"><div class="label">Test Drive &rarr; Sale</div><div class="val">9.1%</div><div class="delta">1 of 11 test drives</div></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:14px;">
+    <div class="card chart-card">
+      <h3>Sales Conversion Stages (single closed sale path)</h3>
+      <div class="chart-wrap"><canvas id="salesStages"></canvas></div>
+      <div style="margin-top:6px; font-size:11.5px; color:#6B7280;">From 1,274 leads, only 1 sale was invoiced — the funnel narrows sharply at the qualified-to-visit stage. Once a lead reaches a test drive, close rate jumps to <strong>9.1%</strong>.</div>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 10px; font-size:13.5px; font-weight:600; color:#374151;">Sales Invoices by Campaign</h3>
+      <table>
+        <thead>
+          <tr><th>Code</th><th>Campaign</th><th class="num">Leads</th><th class="num">Test Drv.</th><th class="num">Sales</th><th class="num">Lead&rarr;Sale</th></tr>
+        </thead>
+        <tbody>
+          <tr style="background:#E8F4EC;">
+            <td><strong>040</strong></td>
+            <td><strong>Hongqi HS3 March</strong> <span class="badge b-hongqi">Hongqi</span></td>
+            <td class="num">350</td>
+            <td class="num">3</td>
+            <td class="num"><strong>1</strong></td>
+            <td class="num"><strong>0.29%</strong></td>
+          </tr>
+          <tr><td>039</td><td>Nissan X-Trail e-POWER March 2026</td><td class="num">143</td><td class="num">4</td><td class="num">0</td><td class="num">0.00%</td></tr>
+          <tr><td>045</td><td>Hongqi HS3 Static Post</td><td class="num">181</td><td class="num">1</td><td class="num">0</td><td class="num">0.00%</td></tr>
+          <tr><td>043</td><td>X-Trail NMEF Campaign</td><td class="num">83</td><td class="num">0</td><td class="num">0</td><td class="num">0.00%</td></tr>
+          <tr><td>042</td><td>Patrol NMEF Campaign</td><td class="num">44</td><td class="num">0</td><td class="num">0</td><td class="num">0.00%</td></tr>
+          <tr><td>041</td><td>Kicks NMEF Campaign</td><td class="num">28</td><td class="num">0</td><td class="num">0</td><td class="num">0.00%</td></tr>
+          <tr><td>038</td><td>Qashqai e-POWER March 2026</td><td class="num">24</td><td class="num">0</td><td class="num">0</td><td class="num">0.00%</td></tr>
+          <tr><td>037</td><td>GMC Terrain Naccache 2026</td><td class="num">3</td><td class="num">0</td><td class="num">0</td><td class="num">0.00%</td></tr>
+          <tr><td>Walkins</td><td>Showroom Walkins</td><td class="num">376</td><td class="num">3</td><td class="num">0</td><td class="num">0.00%</td></tr>
+          <tr><td>N/A</td><td>(untagged)</td><td class="num">42</td><td class="num">0</td><td class="num">0</td><td class="num">0.00%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="notice info" style="margin-top:14px;">
+    <strong>Read-out:</strong> Hongqi HS3 March (Code 040) is the only campaign producing closed sales YTD — 1 sale from 350 leads (0.29% lead-to-sale). The 3 test drives generated by 040 converted at 33.3% — well above the portfolio average — suggesting the issue is upstream (volume of test drives), not the closing motion. Nissan X-Trail e-POWER (039) generated <strong>4 test drives but 0 sales</strong>, the largest gap in the portfolio and the highest-leverage place to focus the BDC follow-up effort.
+  </div>
+</section>
+
+<!-- PAID PERFORMANCE -->
+<section>
+  <div class="sec-title"><h2>Paid Media Benchmark — RYMCO Marketin (lifetime, since Apr 2023)</h2><span class="tag">Live 2026 metrics pending brand-account MCP rollout</span></div>
+  <div class="grid g4">
+    <div class="card kpi"><div class="label">Lifetime Reach</div><div class="val">2.57M</div><div class="delta">unique accounts</div></div>
+    <div class="card kpi"><div class="label">Lifetime Impressions</div><div class="val">20.6M</div><div class="delta">$0.34 CPM</div></div>
+    <div class="card kpi"><div class="label">Total Clicks</div><div class="val">136.7K</div><div class="delta">$0.05 CPC</div></div>
+    <div class="card kpi"><div class="label">Account CTR</div><div class="val">0.66%</div><div class="delta">benchmark band</div></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:14px;">
+    <div class="card chart-card">
+      <h3>Top 10 Campaigns by Impressions (lifetime)</h3>
+      <div class="chart-wrap tall"><canvas id="topCampaigns"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <h3>Reach &amp; Clicks by Top Campaigns</h3>
+      <div class="chart-wrap tall"><canvas id="reachClicks"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- MULTI-FORMAT AUDIT -->
+<section>
+  <div class="sec-title"><h2>Multi-Format Audit — Reels vs. Carousels vs. Stories</h2><span class="tag">Placement-based proxy from paid impressions (lifetime)</span></div>
+
+  <div class="notice">
+    <strong>Methodology note:</strong> True organic Reels/Carousels/Stories breakdown by brand requires Page-level Insights, which the connector cannot pull at this time. The chart below uses paid <em>placement</em> impressions as the closest available proxy: feed (Posts/Carousels), Reels (FB+IG Reels), Stories (FB+IG Stories). Provide an organic export from each Page when available and we'll layer that on top.
+  </div>
+
+  <div class="grid g2">
+    <div class="card chart-card">
+      <h3>Impression Share by Format Placement</h3>
+      <div class="chart-wrap"><canvas id="formatPie"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <h3>CTR by Format Placement</h3>
+      <div class="chart-wrap"><canvas id="formatCtr"></canvas></div>
+      <div style="margin-top:6px; font-size:11.5px; color:#6B7280;">Feed placements convert clicks at <strong>1.21%</strong> — ~7× the CTR of IG Reels. Stories sit between (FB Stories 0.60%, IG Stories 0.18%).</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <table>
+      <thead>
+        <tr><th>Format placement</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th>Read-out</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Feed (Posts &amp; Carousels)</td><td class="num">7,002,758</td><td class="num">84,872</td><td class="num">1.21%</td><td>Highest engagement; best for Carousel-style consideration units.</td></tr>
+        <tr><td>Instagram Stories</td><td class="num">3,657,137</td><td class="num">6,529</td><td class="num">0.18%</td><td>Heavy reach, shallow click intent — use for awareness.</td></tr>
+        <tr><td>Instagram Reels</td><td class="num">3,179,236</td><td class="num">2,557</td><td class="num">0.08%</td><td>Lowest CTR — needs stronger CTA overlays or product-led hook in first 3s.</td></tr>
+        <tr><td>Marketplace</td><td class="num">1,729,396</td><td class="num">10,153</td><td class="num">0.59%</td><td>Solid intent placement for After-Sales / Tires lines.</td></tr>
+        <tr><td>Video Feeds (in-stream)</td><td class="num">1,325,912</td><td class="num">15,235</td><td class="num">1.15%</td><td>Strong CTR — vehicle launch teasers belong here.</td></tr>
+        <tr><td>Search</td><td class="num">1,150,862</td><td class="num">6,881</td><td class="num">0.60%</td><td>Steady support placement; worth keeping in the mix.</td></tr>
+        <tr><td>Facebook Reels</td><td class="num">533,503</td><td class="num">2,367</td><td class="num">0.44%</td><td>Outperforms IG Reels by ~5×; favour FB Reels for short-form.</td></tr>
+        <tr><td>Facebook Stories</td><td class="num">395,813</td><td class="num">2,376</td><td class="num">0.60%</td><td>Most efficient Stories placement.</td></tr>
+        <tr><td>Instream Video</td><td class="num">363,069</td><td class="num">2,632</td><td class="num">0.72%</td><td>Useful for longer narratives.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- BRAND-SPECIFIC INSIGHTS -->
+<section>
+  <div class="sec-title"><h2>Brand-Specific Insights</h2><span class="tag">Qualitative read-out · YTD 2026</span></div>
+  <div class="grid g3">
+
+    <div class="card brand-card brand-hongqi">
+      <h3>HONGQI Lebanon</h3>
+      <div class="stats">
+        <span><strong>531</strong> leads</span>
+        <span><strong>415</strong> qualified</span>
+        <span><strong>8</strong> visits</span>
+        <span><strong>1</strong> sale</span>
+      </div>
+      <p>Quiet day — no DoD movement. Still the top lead generator and the <strong>only brand with a closed sale</strong> (HS3 March). HS3 Static Post (181 leads) is doing the heavy organic-style lifting at low CPL. Weak link remains the showroom hand-off: 1.5% qualified-to-visit. The story isn't acquisition — it's BDC velocity.</p>
+    </div>
+
+    <div class="card brand-card brand-nissan">
+      <h3>Nissan Lebanon</h3>
+      <div class="stats">
+        <span><strong>322</strong> leads (+13)</span>
+        <span><strong>259</strong> qualified (+6)</span>
+        <span><strong>14</strong> visits</span>
+        <span><strong>4</strong> test drives</span>
+      </div>
+      <p>Strong overnight acquisition: <strong>X-Trail NMEF (043) +9 leads, Patrol NMEF (042) +4 leads</strong>. But 0 new visits and 0 new test drives across the brand — qualified leads piling up at stage 3. X-Trail e-POWER (039) unchanged. The Nissan story today is volume-up / conversion-flat.</p>
+    </div>
+
+    <div class="card brand-card brand-gmc">
+      <h3>GMC Lebanon</h3>
+      <div class="stats">
+        <span><strong>3</strong> leads</span>
+        <span><strong>3</strong> qualified</span>
+        <span><strong>0</strong> visits</span>
+        <span><strong>0</strong> sales</span>
+      </div>
+      <p>Critically under-volumed for a Tier 1 manufacturer — only the Terrain Naccache 2026 campaign is tagged. Lifetime account data shows GMC <em>Speedramps</em> historically delivered 7.2M impressions, so the brand has reach potential. Likely a 2026 spend or tagging issue, not a creative one.</p>
+    </div>
+
+    <div class="card brand-card brand-infiniti">
+      <h3>INFINITI Lebanon</h3>
+      <div class="stats">
+        <span><strong>0</strong> leads</span>
+        <span><strong>0</strong> qualified</span>
+        <span><strong>—</strong> visits</span>
+        <span><strong>—</strong> sales</span>
+      </div>
+      <p>Currently silent in the YTD 2026 lead pipeline. Lifetime QX60 test-drive campaign delivered 1.6M impressions at 1.0% CTR, so creative know-how exists. Recommend confirming with the brand team whether the 2026 plan is on a calendar pause.</p>
+    </div>
+
+    <div class="card brand-card brand-rymco">
+      <h3>RYMCO (Showroom Walkins + Untagged)</h3>
+      <div class="stats">
+        <span><strong>376</strong> walkins (+14)</span>
+        <span><strong>42</strong> untagged (+1)</span>
+        <span><strong>295</strong> qualified</span>
+        <span><strong>18</strong> visits</span>
+      </div>
+      <p>Walk-ins continue to outpace paid: <strong>+14 walkins overnight</strong>, now 29.5% of total YTD volume. The organic showroom channel is the only meaningful acquisition driver this week. The 42 N/A leads remain worth investigating for tagging gaps — but the headline is that walk-in foot traffic is healthy and growing day over day.</p>
+    </div>
+
+    <div class="card brand-card">
+      <h3>Format winners by brand</h3>
+      <div class="stats">
+        <span>Best per brand (qualitative)</span>
+      </div>
+      <p style="font-size:12px; line-height:1.55;">
+      <strong>Hongqi</strong>: Static Posts (Carousel-style) drive scale; HS3 Static = 181 leads.<br>
+      <strong>Nissan</strong>: Reel-led EPOWER content driving test drives.<br>
+      <strong>GMC</strong>: Historic Carousel/Speedramps formats outperformed; insufficient 2026 data.<br>
+      <strong>Infiniti</strong>: Historically Feed/Stories testimonial; 2026 data pending.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- RISKS & ESCALATIONS -->
+<section>
+  <div class="sec-title"><h2>Risks &amp; Escalations</h2><span class="tag">Where KPIs are at risk this week</span></div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>Code</th><th>Campaign</th><th>Brand</th><th class="num">Leads</th><th class="num">Qual</th><th class="num">Visits</th><th class="num">Test Dr.</th><th>Risk</th></tr>
+      </thead>
+      <tbody>
+        <tr class="danger">
+          <td>037</td>
+          <td>GMC Terrain Naccache 2026</td>
+          <td><span class="badge b-gmc">GMC</span></td>
+          <td class="num">3</td><td class="num">3</td><td class="num">0</td><td class="num">0</td>
+          <td>Volume far below KPI floor. Verify campaign live + budget.</td>
+        </tr>
+        <tr class="danger">
+          <td>040</td>
+          <td>Hongqi HS3 March</td>
+          <td><span class="badge b-hongqi">Hongqi</span></td>
+          <td class="num">350</td><td class="num">271</td><td class="num">6</td><td class="num">3</td>
+          <td>1.7% qual-to-visit despite top volume. BDC handoff at risk.</td>
+        </tr>
+        <tr class="danger">
+          <td>045</td>
+          <td>Hongqi HS3 Static Post</td>
+          <td><span class="badge b-hongqi">Hongqi</span></td>
+          <td class="num">181</td><td class="num">144</td><td class="num">2</td><td class="num">1</td>
+          <td>Static post bringing volume; visit ratio 1.1% — same BDC issue.</td>
+        </tr>
+        <tr class="alert">
+          <td>042</td>
+          <td>Patrol NMEF Campaign</td>
+          <td><span class="badge b-nissan">Nissan</span></td>
+          <td class="num">44</td><td class="num">40</td><td class="num">1</td><td class="num">0</td>
+          <td>+4 leads DoD, +3 qualified. Still 1 visit / 0 test drives — quality leads, no showroom action.</td>
+        </tr>
+        <tr class="alert">
+          <td>041</td>
+          <td>Kicks NMEF Campaign</td>
+          <td><span class="badge b-nissan">Nissan</span></td>
+          <td class="num">28</td><td class="num">22</td><td class="num">1</td><td class="num">0</td>
+          <td>NMEF angle not converting to showroom — A/B test required.</td>
+        </tr>
+        <tr class="alert">
+          <td>038</td>
+          <td>Qashqai e-POWER March 2026</td>
+          <td><span class="badge b-nissan">Nissan</span></td>
+          <td class="num">24</td><td class="num">17</td><td class="num">1</td><td class="num">0</td>
+          <td>Low total volume; check whether flight has ended.</td>
+        </tr>
+        <tr class="alert">
+          <td>043</td>
+          <td>X-Trail NMEF Campaign</td>
+          <td><span class="badge b-nissan">Nissan</span></td>
+          <td class="num">83</td><td class="num">70</td><td class="num">2</td><td class="num">0</td>
+          <td><strong>+9 leads DoD</strong> (biggest mover). 70 qualified but only 2 visits / 0 TDs — protect this momentum.</td>
+        </tr>
+        <tr>
+          <td>039</td>
+          <td>Nissan X-Trail e-POWER March 2026</td>
+          <td><span class="badge b-nissan">Nissan</span></td>
+          <td class="num">143</td><td class="num">110</td><td class="num">9</td><td class="num">4</td>
+          <td>+1 visit DoD. Best converter — recommend budget upweight (no current risk).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- DAILY LEADS TREND -->
+<section>
+  <div class="sec-title"><h2>Daily Leads Comparison</h2><span class="tag">Day-over-day · Daily Leads field from Lead Analysis XLSX</span></div>
+
+  <div class="grid g2">
+    <div class="card chart-card">
+      <h3>Daily Leads by Campaign — Trend</h3>
+      <div class="chart-wrap tall"><canvas id="dailyTrend"></canvas></div>
+      <div style="margin-top:6px; font-size:11.5px; color:#6B7280;">New days will appear here as each Lead Analysis XLSX is uploaded. Mondays represent the post-weekend incremental.</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 10px; font-size:13.5px; font-weight:600; color:#374151;">Daily Leads Comparison Table</h3>
+      <table>
+        <thead>
+          <tr><th>Code</th><th>Campaign</th><th class="num">Mon 4</th><th class="num">Tue 5</th><th class="num">Wed 6</th><th class="num">Δ Tue→Wed</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Walkins</td><td>Showroom Walkins</td><td class="num">4</td><td class="num">1</td><td class="num"><strong>8</strong></td><td class="num" style="color:#146A3F;">+7</td></tr>
+          <tr><td>043</td><td>X-Trail NMEF Campaign</td><td class="num">6</td><td class="num">1</td><td class="num"><strong>5</strong></td><td class="num" style="color:#146A3F;">+4</td></tr>
+          <tr><td>042</td><td>Patrol NMEF Campaign</td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num" style="color:#146A3F;">+1</td></tr>
+          <tr><td>N/A</td><td>(untagged)</td><td class="num">3</td><td class="num">0</td><td class="num">1</td><td class="num" style="color:#146A3F;">+1</td></tr>
+          <tr><td>045</td><td>Hongqi HS3 Static Post</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td>037</td><td>GMC Terrain Naccache 2026</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td>038</td><td>Qashqai e-POWER March 2026</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td>039</td><td>Nissan X-Trail e-POWER March 2026</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td>040</td><td>Hongqi HS3 March</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td>041</td><td>Kicks NMEF Campaign</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr style="border-top:2px solid #1F3A6B; background:#F9FAFB;">
+            <td colspan="2"><strong>Total Daily Leads</strong></td>
+            <td class="num"><strong>14</strong></td>
+            <td class="num"><strong>2</strong></td>
+            <td class="num"><strong>15</strong></td>
+            <td class="num" style="color:#146A3F;"><strong>+13</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px; font-size:11.5px; color:#6B7280;">"Daily Leads" / "Created Leads" column reflects intake within each file's snapshot window. The true YTD growth from Tue 9:24 AM to Wed 9:17 AM is <strong>+28 leads</strong> (panel on the right) — 13 leads landed Tue afternoon between snapshots and don't appear in either day's count.</div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:14px;">
+    <div class="card chart-card">
+      <h3>Total Daily Leads — Daily Volume</h3>
+      <div class="chart-wrap"><canvas id="dailyTotal"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <h3>YTD Delta — Tue 5 → Wed 6 May</h3>
+      <div class="chart-wrap"><canvas id="ytdDelta"></canvas></div>
+      <div style="margin-top:6px; font-size:11.5px; color:#6B7280;">True day-over-day growth across the funnel (cumulative YTD column comparison between files). Visits, test drives and sales were flat for the second consecutive day — the bottleneck is BDC velocity.</div>
+    </div>
+  </div>
+
+  <div class="notice info" style="margin-top:14px;">
+    <strong>How this updates:</strong> Each day's Lead Analysis XLSX (Daily Leads = column R in current files) is logged to <code>daily_leads_log.json</code> in the project folder. When a new file is uploaded, the day is appended and every section refreshes — comparison table, trend chart, total daily bar, and YTD delta all extend by one period.
+  </div>
+</section>
+
+<!-- WEDNESDAY CATCH-UP -->
+<section>
+  <div class="sec-title"><h2>Wednesday Daily Catch-up</h2><span class="tag">Tue 9:24 AM &rarr; Wed 9:17 AM &middot; what moved overnight</span></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3 style="margin:0 0 8px; font-size:14px; color:#1F3A6B;">Where the +28 leads came from (YTD delta)</h3>
+      <table>
+        <thead><tr><th>Code</th><th>Campaign</th><th class="num">&Delta; Leads</th><th class="num">Share of growth</th></tr></thead>
+        <tbody>
+          <tr><td>Walkins</td><td>Showroom Walkins</td><td class="num"><strong>+14</strong></td><td class="num">50.0%</td></tr>
+          <tr><td>043</td><td>X-Trail NMEF Campaign</td><td class="num"><strong>+9</strong></td><td class="num">32.1%</td></tr>
+          <tr><td>042</td><td>Patrol NMEF Campaign</td><td class="num">+4</td><td class="num">14.3%</td></tr>
+          <tr><td>N/A</td><td>(untagged)</td><td class="num">+1</td><td class="num">3.6%</td></tr>
+          <tr style="border-top:2px solid #1F3A6B; background:#F9FAFB;"><td colspan="2"><strong>Total YTD growth</strong></td><td class="num"><strong>+28</strong></td><td class="num"><strong>100%</strong></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:8px; font-size:11.5px; color:#6B7280;">Note: only <strong>15 of these 28 leads</strong> appear in Wed's "Created Leads" column. The other 13 landed Tue afternoon between snapshots. (Wed's file renamed column R from "Daily Leads" to "No Of Created Leads" — same semantic.)</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 8px; font-size:14px; color:#1F3A6B;">Read-out for the executive team</h3>
+      <ul style="padding-left:18px; margin:6px 0; font-size:13px; color:#374151;">
+        <li><strong>Best acquisition day of the week</strong> &mdash; +28 leads, the largest 24-hour gain so far. Walkins (+14) and X-Trail NMEF (+9) drove 82% of the volume.</li>
+        <li><strong>Lower funnel: full stop, second day running.</strong> 0 new visits, 0 test drives, 0 sales. Visits stuck at 40, test drives at 11. The 23 pending warm/hot leads remain unmoved.</li>
+        <li>Patrol NMEF (042) +4 leads, +3 qualified &mdash; quality intake but still 0 test drives.</li>
+        <li>Hongqi flat for the second consecutive day &mdash; recommend confirming HS3 March + Static Post haven't dropped out of rotation.</li>
+        <li><strong>Escalation:</strong> the qualified bench has grown to 972; visit conversion is now 4.1% and needs intervention this week before pending leads cool.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- DATA SOURCES & LIMITATIONS -->
+<div class="foot">
+  <strong>Data sources &amp; limitations</strong>
+  <ul>
+    <li><strong>CRM lead funnel</strong> — Lead Analysis__Type_Summary_Element_Campaign_6-5-2026.xlsx · Vehicle Sales Lead source · run 5/6/2026 9:17 AM by Fouad.Rasamny. Day-over-day deltas computed against the 5-5-2026 file (Tue 9:24 AM). Note: column R header was renamed by the source system from "Daily Leads" to "No Of Created Leads" between Tue and Wed — semantic is unchanged.</li>
+    <li><strong>Paid media</strong> — Meta Ads connector, RYMCO Marketin ad account 644296153991129 (lifetime, since 4 Apr 2023). Brand-specific Meta accounts (Nissan Lebanon, GMC Lebanon, INFINITI Lebanon, McLaren Beirut) are MCP-disabled (Meta is rolling out access). Live 2026 paid metrics will populate once enabled.</li>
+    <li><strong>Multi-Format Audit</strong> — derived from paid placement breakdowns; not a true organic Reel/Carousel/Story comparison. Provide a Page-level export when available and the dashboard can be re-pointed.</li>
+    <li><strong>Day-over-day method</strong> — Tue dashboard compares against the previous business day (Mon). Two views surfaced: literal "Daily Leads" column from each file (snapshot intake) and YTD column delta (true growth between snapshots).</li>
+  </ul>
+</div>
+
+</div>
+
+<script>
+const COLORS = {
+  rymco: '#1F3A6B',
+  rymcoLight: '#5C8AD6',
+  hongqi: '#B7950B',
+  nissan: '#C8202C',
+  gmc: '#D32F2F',
+  infiniti: '#0B3D91',
+  other: '#6B7280',
+  ok: '#2D8B5F',
+  warn: '#D9A726',
+  danger: '#C8331E'
+};
+
+Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif';
+Chart.defaults.font.size = 11.5;
+Chart.defaults.color = '#374151';
+
+// Brand leads donut
+new Chart(document.getElementById('brandLeads'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Hongqi (040+045)', 'Nissan (038/039/041/042/043)', 'GMC (037)', 'Showroom Walkins + Untagged'],
+    datasets: [{
+      data: [531, 322, 3, 418],
+      backgroundColor: [COLORS.hongqi, COLORS.nissan, COLORS.gmc, COLORS.other],
+      borderColor: '#fff',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11 } } },
+      tooltip: { callbacks: { label: (ctx) => ctx.label + ': ' + ctx.raw + ' leads (' + (ctx.raw/12.74).toFixed(1) + '%)' } }
+    },
+    cutout: '60%'
+  }
+});
+
+// Campaign bar
+new Chart(document.getElementById('campaignBar'), {
+  type: 'bar',
+  data: {
+    labels: [
+      'Showroom Walkins',
+      'Hongqi HS3 Mar (040)',
+      'Hongqi HS3 Static (045)',
+      'Nissan X-Trail e-POWER (039)',
+      'X-Trail NMEF (043)',
+      'Patrol NMEF (042)',
+      'Untagged',
+      'Kicks NMEF (041)',
+      'Qashqai e-POWER (038)',
+      'GMC Terrain (037)'
+    ],
+    datasets: [
+      { label: 'Total Leads', data: [376, 350, 181, 143, 83, 44, 42, 28, 24, 3], backgroundColor: COLORS.rymco, borderRadius: 3 },
+      { label: 'Qualified', data: [264, 271, 144, 110, 70, 40, 31, 22, 17, 3], backgroundColor: COLORS.rymcoLight, borderRadius: 3 },
+      { label: 'Visits', data: [14, 6, 2, 9, 2, 1, 4, 1, 1, 0], backgroundColor: COLORS.warn, borderRadius: 3 },
+      { label: 'Test Drives', data: [3, 3, 1, 4, 0, 0, 0, 0, 0, 0], backgroundColor: COLORS.ok, borderRadius: 3 },
+      { label: 'Sales Invoices', data: [0, 1, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: COLORS.danger, borderRadius: 3 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    scales: {
+      x: { stacked: false, grid: { color: '#F0F2F5' } },
+      y: { stacked: false, grid: { display: false } }
+    },
+    plugins: {
+      legend: { position: 'top', labels: { boxWidth: 10, padding: 14 } },
+      tooltip: { mode: 'index', intersect: false }
+    }
+  }
+});
+
+// Daily Leads Trend — line chart per campaign (extends as new days are added)
+const dailyDates = ['Mon 4 May', 'Tue 5 May', 'Wed 6 May'];
+const dailyByCampaign = {
+  'Showroom Walkins':       { data: [4, 1, 8], color: '#3730A3' },
+  '043 X-Trail NMEF':       { data: [6, 1, 5], color: COLORS.nissan },
+  'N/A (untagged)':         { data: [3, 0, 1], color: COLORS.other },
+  '042 Patrol NMEF':        { data: [0, 0, 1], color: '#DC2626' },
+  '045 Hongqi HS3 Static':  { data: [1, 0, 0], color: COLORS.hongqi },
+  '037 GMC Terrain':        { data: [0, 0, 0], color: COLORS.gmc },
+  '038 Qashqai e-POWER':    { data: [0, 0, 0], color: '#7F1D1D' },
+  '039 Nissan X-Trail':     { data: [0, 0, 0], color: '#991B1B' },
+  '040 Hongqi HS3 March':   { data: [0, 0, 0], color: '#92400E' },
+  '041 Kicks NMEF':         { data: [0, 0, 0], color: '#B91C1C' }
+};
+
+new Chart(document.getElementById('dailyTrend'), {
+  type: 'line',
+  data: {
+    labels: dailyDates,
+    datasets: Object.entries(dailyByCampaign).map(([name, v]) => ({
+      label: name,
+      data: v.data,
+      borderColor: v.color,
+      backgroundColor: v.color,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      tension: 0.25,
+      borderWidth: 2
+    }))
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: { grid: { color: '#F0F2F5' } },
+      y: { beginAtZero: true, grid: { color: '#F0F2F5' }, title: { display: true, text: 'Daily leads' } }
+    },
+    plugins: {
+      legend: { position: 'right', labels: { boxWidth: 10, padding: 8, font: { size: 10.5 } } },
+      tooltip: { mode: 'index', intersect: false }
+    }
+  }
+});
+
+// Daily Total — bar chart (1 bar per day, grows as new days are added)
+new Chart(document.getElementById('dailyTotal'), {
+  type: 'bar',
+  data: {
+    labels: dailyDates,
+    datasets: [{
+      label: 'Total Daily Leads',
+      data: [14, 2, 15],
+      backgroundColor: [COLORS.rymco, '#5C8AD6', '#2D8B5F'],
+      borderRadius: 4,
+      barThickness: 56
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: { grid: { display: false } },
+      y: { beginAtZero: true, grid: { color: '#F0F2F5' } }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: (ctx) => ctx.parsed.y + ' leads' } }
+    }
+  }
+});
+
+// YTD Delta — true DoD growth across funnel
+new Chart(document.getElementById('ytdDelta'), {
+  type: 'bar',
+  data: {
+    labels: ['Total Leads', 'Qualified', 'Disqualified', 'Visits', 'Test Drives', 'Sales'],
+    datasets: [{
+      label: 'Δ Tue → Wed',
+      data: [28, 7, 8, 0, 0, 0],
+      backgroundColor: ['#1F3A6B', '#2D8B5F', '#D9A726', '#9CA3AF', '#9CA3AF', '#9CA3AF'],
+      borderRadius: 3
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: { grid: { display: false } },
+      y: { beginAtZero: true, grid: { color: '#F0F2F5' } }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: (ctx) => (ctx.parsed.y > 0 ? '+' : '') + ctx.parsed.y + ' DoD' } }
+    }
+  }
+});
+
+// Sales Stages — funnel-to-sale progression
+new Chart(document.getElementById('salesStages'), {
+  type: 'bar',
+  data: {
+    labels: ['Total Leads', 'Qualified', 'Visits', 'Test Drives', 'Sales Invoices'],
+    datasets: [{
+      label: 'Count',
+      data: [1274, 972, 40, 11, 1],
+      backgroundColor: ['#1F3A6B', '#2A4F8F', '#5C8AD6', '#D9A726', '#2D8B5F'],
+      borderRadius: 3
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    scales: {
+      x: { type: 'logarithmic', min: 1, ticks: { callback: (v) => v.toLocaleString() }, grid: { color: '#F0F2F5' } },
+      y: { grid: { display: false } }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const v = ctx.parsed.x;
+            const stages = [1274, 972, 40, 11, 1];
+            const idx = ctx.dataIndex;
+            const ofLeads = ((v/1274)*100).toFixed(2) + '%';
+            return [`${v.toLocaleString()} (${ofLeads} of leads)`];
+          }
+        }
+      }
+    }
+  }
+});
+
+// Top campaigns by impressions (lifetime)
+new Chart(document.getElementById('topCampaigns'), {
+  type: 'bar',
+  data: {
+    labels: ['IG GMC Speedramps', 'FB GMC Speedramps', 'FB after-Sales Parts', 'Tires 25% Insta', 'FB INFINITI QX60', 'Fb 50K awareness', 'IG After Sales Parts', 'FB GMC Carrousel Ramdan', '50K Traffic IG', 'IG Back To School'],
+    datasets: [{
+      label: 'Impressions',
+      data: [4317418, 2886286, 1902495, 1574392, 1519488, 1203168, 956535, 658146, 570322, 475750],
+      backgroundColor: COLORS.rymco,
+      borderRadius: 3
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    scales: {
+      x: { ticks: { callback: (v) => (v/1000000).toFixed(1) + 'M' }, grid: { color: '#F0F2F5' } },
+      y: { grid: { display: false } }
+    },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// Reach + Clicks dual
+new Chart(document.getElementById('reachClicks'), {
+  type: 'bar',
+  data: {
+    labels: ['IG GMC Speedramps', 'FB GMC Speedramps', 'FB after-Sales Parts', 'Tires 25% Insta', 'FB INFINITI QX60', 'Fb 50K awareness', 'IG After Sales Parts', 'FB GMC Carrousel Ramdan', '50K Traffic IG', 'IG Back To School'],
+    datasets: [
+      { label: 'Reach', data: [639080, 784085, 482305, 909204, 211258, 671587, 315852, 191463, 244620, 179124], backgroundColor: COLORS.rymcoLight, yAxisID: 'y' },
+      { label: 'Clicks', data: [2628, 33207, 18448, 849, 15409, 1557, 2656, 5959, 2128, 924], backgroundColor: COLORS.warn, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    scales: {
+      x: { display: false },
+      y: { position: 'left', grid: { display: false }, ticks: { autoSkip: false, font: { size: 10 } } },
+      y1: { display: false }
+    },
+    plugins: { legend: { position: 'top', labels: { boxWidth: 10, padding: 12 } } }
+  }
+});
+
+// Format pie
+new Chart(document.getElementById('formatPie'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Feed (Posts/Carousels)', 'IG Stories', 'IG Reels', 'Marketplace', 'Video Feeds', 'Search', 'FB Reels', 'FB Stories', 'Other'],
+    datasets: [{
+      data: [7002758, 3657137, 3179236, 1729396, 1325912, 1150862, 711106, 395813, 1440690],
+      backgroundColor: ['#1F3A6B', '#B45309', '#D97706', '#475569', '#0E7490', '#059669', '#7C2D12', '#9A3412', '#9CA3AF'],
+      borderColor: '#fff',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right', labels: { boxWidth: 10, padding: 8, font: { size: 11 } } },
+      tooltip: { callbacks: { label: (ctx) => ctx.label + ': ' + (ctx.raw/1000000).toFixed(2) + 'M imp' } }
+    },
+    cutout: '55%'
+  }
+});
+
+// Format CTR
+new Chart(document.getElementById('formatCtr'), {
+  type: 'bar',
+  data: {
+    labels: ['Feed', 'Video Feeds', 'Instream Video', 'FB Stories', 'Search', 'Marketplace', 'FB Reels', 'IG Stories', 'IG Reels'],
+    datasets: [{
+      label: 'CTR (%)',
+      data: [1.21, 1.15, 0.72, 0.60, 0.60, 0.59, 0.44, 0.18, 0.08],
+      backgroundColor: ['#2D8B5F', '#2D8B5F', '#5C8AD6', '#5C8AD6', '#5C8AD6', '#5C8AD6', '#D9A726', '#C8331E', '#C8331E'],
+      borderRadius: 3
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    scales: {
+      x: { ticks: { callback: (v) => v + '%' }, grid: { color: '#F0F2F5' } },
+      y: { grid: { display: false } }
+    },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ctx.parsed.x + '% CTR' } } }
+  }
+});
+</script>
+</body>
+</html>
